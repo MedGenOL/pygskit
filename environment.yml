@@ -1,0 +1,10 @@
+name: 1k_wgs_chd
+channels:
+  - defaults
+dependencies:
+  - python==3.10
+  - pip
+  - pip:
+      - click
+      - setuptools
+      - hail==0.2.120
