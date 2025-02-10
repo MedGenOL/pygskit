@@ -64,10 +64,10 @@ The repository is organized into the following folders to maintain a clean struc
 ### Installing the Required Dependencies via Conda
 
 ```bash
-git clone https://github.com/MedGenOL/1k_wgs_chd
-cd 1k_wgs_chd
+git clone https://github.com/MedGenOL/pygskit
+cd pygskit
 conda env create -f environment.yml
-conda activate 1k_wgs_chd
+conda activate pygskit
 ```
 
 
