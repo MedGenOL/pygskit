@@ -1,4 +1,4 @@
 hail~=0.2.120
 click~=8.1.7
-gnomad~=0.8.1
+gnomad>=0.8.2
 pytest~=8.3.4
