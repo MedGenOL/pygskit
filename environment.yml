@@ -1,10 +1,12 @@
+# Use this file to create a conda environment with the command: conda env create -f environment.yml
 name: pygskit
 channels:
   - defaults
 dependencies:
-  - python==3.10
+  - python>=3.10
   - pip
   - pip:
       - click
       - setuptools
+      - gnomad~=0.8.2
       - hail==0.2.120
