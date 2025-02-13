@@ -1,13 +1,12 @@
 import shutil
 from pygskit.gskit.utils import init_hail_local
-from pygskit.gskit.converters import (convert_vds_to_mt,
-                                      convert_mt_to_multi_sample_vcf
-                                      )
+from pygskit.gskit.converters import convert_vds_to_mt, convert_mt_to_multi_sample_vcf
 from pygskit.gskit.file_utils import compress_files, decompress_files
 from pygskit.gskit.constants import HG38_GENOME_REFERENCE
 from pathlib import Path
 
 TESTS_DIR = Path(__file__).parent
+
 
 def test_convert_vds_to_mt():
     """
@@ -20,31 +19,35 @@ def test_convert_vds_to_mt():
     :return: None
     """
     # Initialize Hail in local mode
-    init_hail_local(n_cores=4,
-                    driver_memory='8g',
-                    reference_genome=HG38_GENOME_REFERENCE)
+    init_hail_local(n_cores=4, driver_memory="8g", reference_genome=HG38_GENOME_REFERENCE)
 
     # Decompress the VDS zip file
-    decompress_files(zip_path=str(TESTS_DIR / 'testdata/vds/cohort.vds.zip'),
-                     extract_to=str(TESTS_DIR / 'testdata/vds/cohort.vds'),
-                     remove_originals=False)
+    decompress_files(
+        zip_path=str(TESTS_DIR / "testdata/vds/cohort.vds.zip"),
+        extract_to=str(TESTS_DIR / "testdata/vds/cohort.vds"),
+        remove_originals=False,
+    )
 
     # Convert a VDS to a MatrixTable
-    vds_path = TESTS_DIR / 'testdata/vds/cohort.vds'
-    mt_output_path = TESTS_DIR / 'testdata/mts/cohort.mt'
-    convert_vds_to_mt(vds_path= str(vds_path),
-                      output_path= str(mt_output_path),
-                      adjust_genotypes=True,
-                      skip_split_multi=True,
-                      overwrite=True)
+    vds_path = TESTS_DIR / "testdata/vds/cohort.vds"
+    mt_output_path = TESTS_DIR / "testdata/mts/cohort.mt"
+    convert_vds_to_mt(
+        vds_path=str(vds_path),
+        output_path=str(mt_output_path),
+        adjust_genotypes=True,
+        skip_split_multi=True,
+        overwrite=True,
+    )
 
     # Check if the mt_output_path / '_SUCCESS' file exists
-    assert mt_output_path.joinpath('_SUCCESS').exists()
+    assert mt_output_path.joinpath("_SUCCESS").exists()
 
     # Compress the MatrixTable into a zip file and remove the original MatrixTable
-    compress_files(source_dir=str(mt_output_path),
-                    output_zip=str(mt_output_path.with_suffix('.mt.zip')),
-                    remove_originals=True)
+    compress_files(
+        source_dir=str(mt_output_path),
+        output_zip=str(mt_output_path.with_suffix(".mt.zip")),
+        remove_originals=True,
+    )
 
     # Cleanup temporary files or directories
     if vds_path.exists():
@@ -61,22 +64,21 @@ def test_convert_mt_to_multi_sample_vcf():
     :return: None
     """
     # Initialize Hail in local mode
-    init_hail_local(n_cores=4,
-                    driver_memory='8g',
-                    reference_genome=HG38_GENOME_REFERENCE)
+    init_hail_local(n_cores=4, driver_memory="8g", reference_genome=HG38_GENOME_REFERENCE)
 
     # Decompress the MatrixTable zip file
-    decompress_files(zip_path=str(TESTS_DIR / 'testdata/mts/cohort.mt.zip'),
-                     extract_to=str(TESTS_DIR / 'testdata/mts/cohort.mt'),
-                     remove_originals=False)
+    decompress_files(
+        zip_path=str(TESTS_DIR / "testdata/mts/cohort.mt.zip"),
+        extract_to=str(TESTS_DIR / "testdata/mts/cohort.mt"),
+        remove_originals=False,
+    )
 
     # Convert a MatrixTable to a multi-sample VCF
-    mt_path = TESTS_DIR / 'testdata/mts/cohort.mt'
-    vcf_output_path =TESTS_DIR / 'testdata/vcf/cohort.vcf.gz'
-    convert_mt_to_multi_sample_vcf(mt_path= str(mt_path),
-                                   vcf_path= str(vcf_output_path),
-                                   filter_adj_genotypes=True,
-                                   min_ac=1)
+    mt_path = TESTS_DIR / "testdata/mts/cohort.mt"
+    vcf_output_path = TESTS_DIR / "testdata/vcf/cohort.vcf.gz"
+    convert_mt_to_multi_sample_vcf(
+        mt_path=str(mt_path), vcf_path=str(vcf_output_path), filter_adj_genotypes=True, min_ac=1
+    )
 
     # Check if the vcf_output_path file exists
     assert vcf_output_path.exists()

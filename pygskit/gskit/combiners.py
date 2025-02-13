@@ -5,9 +5,7 @@ import hail as hl
 from pygskit.gskit.file_utils import get_vcfs_files
 
 
-def combine_gvcfs(gvcf_dir: str,
-                  vds_output_path: str,
-                  tmp_path: str) -> None:
+def combine_gvcfs(gvcf_dir: str, vds_output_path: str, tmp_path: str) -> None:
     """
     Combines GVCF files into a VDS using Hail's GVCF combiner.
 

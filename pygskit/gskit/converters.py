@@ -3,12 +3,13 @@ import hail as hl
 from gnomad.utils.annotations import annotate_adj
 from pygskit.gskit.constants import ADJ_GT_FIELD
 
+
 def convert_vds_to_mt(
     vds_path: str,
     output_path: str,
-    adjust_genotypes: bool=True,
-    skip_split_multi: bool=True,
-    overwrite: bool=False,
+    adjust_genotypes: bool = True,
+    skip_split_multi: bool = True,
+    overwrite: bool = False,
 ) -> None:
     """
     Convert a Variant Dataset (VDS) to MatrixTable (MT).
@@ -37,9 +38,7 @@ def convert_vds_to_mt(
             mt = annotate_adj(mt)  # Ensure annotate_adj is defined or imported
 
         # convert LGT to GT
-        mt = mt.annotate_entries(
-                GT=hl.vds.lgt_to_gt(mt.LGT, mt.LA)
-        )
+        mt = mt.annotate_entries(GT=hl.vds.lgt_to_gt(mt.LGT, mt.LA))
 
         logging.info("MatrixTable schema:")
         logging.info(mt.describe())
@@ -58,10 +57,7 @@ def convert_vds_to_mt(
 
 
 def convert_mt_to_multi_sample_vcf(
-    mt_path: str,
-    vcf_path: str,
-    filter_adj_genotypes: bool = True,
-    min_ac: int = 1
+    mt_path: str, vcf_path: str, filter_adj_genotypes: bool = True, min_ac: int = 1
 ) -> None:
     """
     Convert a Hail MatrixTable to a multi-sample VCF file.
@@ -96,9 +92,7 @@ def convert_mt_to_multi_sample_vcf(
         logging.info("Annotating rows with VCF-compatible info fields (AC, AN, call_rate)...")
         mt = mt.annotate_rows(
             info=hl.struct(
-                AC=mt.variant_qc.AC[1],
-                AN=mt.variant_qc.AN,
-                call_rate=mt.variant_qc.call_rate
+                AC=mt.variant_qc.AC[1], AN=mt.variant_qc.AN, call_rate=mt.variant_qc.call_rate
             )
         )
 
@@ -119,4 +113,3 @@ def convert_mt_to_multi_sample_vcf(
     finally:
         hl.stop()
         logging.info("Hail context stopped.")
-

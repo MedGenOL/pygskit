@@ -15,6 +15,7 @@ Utility functions for file handling.
 # Configure logging. Adjust the level as needed.
 logging.basicConfig(level=logging.INFO)
 
+
 def check_file_exists_and_readable(path: str) -> str:
     """
     Check if a file exists, is a regular file, and is readable.
@@ -86,7 +87,7 @@ def get_vcfs_files(directory: str, pattern: str = None) -> List[str]:
         check_file_exists_and_readable(abs_path)
 
         # Compute the corresponding TBI file path by replacing the GVCF extension with the TBI extension.
-        base = abs_path[:-len(GVCF_EXTENSION)]
+        base = abs_path[: -len(GVCF_EXTENSION)]
         tbi_path = base + GVCF_EXTENSION_TBI
 
         # Validate that the TBI file exists and is readable.
@@ -105,7 +106,7 @@ def compress_files(source_dir: str, output_zip: str, remove_originals: bool = Fa
     :param output_zip: The path to the output ZIP file.
     :param remove_originals: If True, remove the source directory after compression.
     """
-    with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
+    with zipfile.ZipFile(output_zip, "w", zipfile.ZIP_DEFLATED) as zipf:
         for root, _, files in os.walk(source_dir):
             for file in files:
                 file_path = os.path.join(root, file)
@@ -127,7 +128,7 @@ def decompress_files(zip_path: str, extract_to: str, remove_originals: bool = Fa
     :param extract_to: The directory to extract the archive contents to.
     :param remove_originals: If True, remove the ZIP archive after extraction.
     """
-    with zipfile.ZipFile(zip_path, 'r') as zipf:
+    with zipfile.ZipFile(zip_path, "r") as zipf:
         zipf.extractall(extract_to)
     logging.info(f"Extracted '{zip_path}' into '{extract_to}'")
 

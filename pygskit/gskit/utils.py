@@ -3,10 +3,9 @@ import logging
 from pygskit.gskit.constants import HG38_GENOME_REFERENCE
 
 
-def init_hail_local(n_cores: int = 4,
-                    driver_memory: str = '4g',
-                    reference_genome: str = HG38_GENOME_REFERENCE
-                    ) -> None:
+def init_hail_local(
+    n_cores: int = 4, driver_memory: str = "4g", reference_genome: str = HG38_GENOME_REFERENCE
+) -> None:
     """
     Initialize Hail in local mode with the specified configuration.
 
@@ -27,13 +26,15 @@ def init_hail_local(n_cores: int = 4,
 
     # Configure logging if it hasn't been configured elsewhere
     logging.basicConfig(level=logging.INFO)
-    logging.info(f"Initializing Hail in local mode with {n_cores} cores, driver memory: {driver_memory}, "
-                 f"and reference genome: {reference_genome}.")
+    logging.info(
+        f"Initializing Hail in local mode with {n_cores} cores, driver memory: {driver_memory}, "
+        f"and reference genome: {reference_genome}."
+    )
 
     hl.init(
         local=f"local[{n_cores}]",
-        spark_conf={'spark.driver.memory': driver_memory},
-        default_reference=reference_genome
+        spark_conf={"spark.driver.memory": driver_memory},
+        default_reference=reference_genome,
     )
 
     logging.info("Hail initialized successfully.")

@@ -22,15 +22,9 @@ Options:
 
 @click.command()
 @click.option("--vds-path", required=True, help="Path to the input VDS file.")
-@click.option(
-    "--output-path", required=True, help="Path to save the output MatrixTable."
-)
-@click.option(
-    "--local-cores", default=100, help="Number of local cores for Hail initialization."
-)
-@click.option(
-    "--driver-memory", default="256g", help="Memory allocated to the Spark driver."
-)
+@click.option("--output-path", required=True, help="Path to save the output MatrixTable.")
+@click.option("--local-cores", default=100, help="Number of local cores for Hail initialization.")
+@click.option("--driver-memory", default="256g", help="Memory allocated to the Spark driver.")
 @click.option(
     "--skip-split-multi",
     is_flag=True,

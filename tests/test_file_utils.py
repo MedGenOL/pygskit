@@ -6,6 +6,7 @@ from pygskit.gskit.constants import GVCF_EXTENSION
 
 TESTS_DIR = Path(__file__).parent
 
+
 def test_get_vcfs_files():
     """
     Test the get_vcfs_files function by retrieving GVCF files from a directory.

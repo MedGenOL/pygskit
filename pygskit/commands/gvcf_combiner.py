@@ -123,5 +123,6 @@ def gvcf_combiner(
         reference_genome (str): Reference genome to use (e.g., GRCh37, GRCh38).
     """
     logger.info("Starting GVCF combiner")
-    run_gvcf_combiner(path_to_gvcfs, vds_output_path, tmp_path, driver_memory, n_cpus, reference_genome)
-
+    run_gvcf_combiner(
+        path_to_gvcfs, vds_output_path, tmp_path, driver_memory, n_cpus, reference_genome
+    )
