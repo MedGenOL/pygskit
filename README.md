@@ -1,3 +1,6 @@
+[![Python application](https://github.com/MedGenOL/pygskit/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/MedGenOL/pygskit/actions/workflows/python-app.yml)
+[![Python Package using Conda](https://github.com/MedGenOL/pygskit/actions/workflows/python-package-conda.yml/badge.svg)](https://github.com/MedGenOL/pygskit/actions/workflows/python-package-conda.yml)
+
 pygskit: A general-purpose Python package for the analysis of genetic data.
 --
 
