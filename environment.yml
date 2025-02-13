@@ -2,8 +2,11 @@
 name: pygskit
 channels:
   - defaults
+  - conda-forge
+  - bioconda
 dependencies:
   - python>=3.10,<3.11
+  - openjdk=11
   - pip
   - pip:
       - click
