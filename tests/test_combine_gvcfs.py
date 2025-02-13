@@ -35,5 +35,5 @@ def test_combine_gvcfs():
     assert vds_output_path.joinpath('variant_data/_SUCCESS').exists()
 
     # Cleanup temporary files or directories
-    if vds_output_path.exists():
-        shutil.rmtree(vds_output_path)
+    # if vds_output_path.exists():
+    #    shutil.rmtree(vds_output_path)
