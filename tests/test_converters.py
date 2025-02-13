@@ -3,6 +3,7 @@ from pygskit.gskit.utils import init_hail_local
 from pygskit.gskit.converters import (convert_vds_to_mt,
                                       convert_mt_to_multi_sample_vcf
                                       )
+from pygskit.gskit.file_utils import compress_files, decompress_files
 from pygskit.gskit.constants import HG38_GENOME_REFERENCE
 from pathlib import Path
 
@@ -23,9 +24,14 @@ def test_convert_vds_to_mt():
                     driver_memory='8g',
                     reference_genome=HG38_GENOME_REFERENCE)
 
+    # Decompress the VDS zip file
+    decompress_files(zip_path=str(TESTS_DIR / 'testdata/vds/cohort.vds.zip'),
+                     extract_to=str(TESTS_DIR / 'testdata/vds/cohort.vds'),
+                     remove_originals=False)
+
     # Convert a VDS to a MatrixTable
-    vds_path = TESTS_DIR / 'local/tmp/cohort.vds'
-    mt_output_path = TESTS_DIR / 'local/tmp/cohort.mt'
+    vds_path = TESTS_DIR / 'testdata/vds/cohort.vds'
+    mt_output_path = TESTS_DIR / 'testdata/mts/cohort.mt'
     convert_vds_to_mt(vds_path= str(vds_path),
                       output_path= str(mt_output_path),
                       adjust_genotypes=True,
@@ -35,9 +41,14 @@ def test_convert_vds_to_mt():
     # Check if the mt_output_path / '_SUCCESS' file exists
     assert mt_output_path.joinpath('_SUCCESS').exists()
 
+    # Compress the MatrixTable into a zip file and remove the original MatrixTable
+    compress_files(source_dir=str(mt_output_path),
+                    output_zip=str(mt_output_path.with_suffix('.mt.zip')),
+                    remove_originals=True)
+
     # Cleanup temporary files or directories
-    # if mt_output_path.exists():
-    #    shutil.rmtree(mt_output_path)
+    if vds_path.exists():
+        shutil.rmtree(vds_path)
 
 
 def test_convert_mt_to_multi_sample_vcf():
@@ -54,9 +65,14 @@ def test_convert_mt_to_multi_sample_vcf():
                     driver_memory='8g',
                     reference_genome=HG38_GENOME_REFERENCE)
 
+    # Decompress the MatrixTable zip file
+    decompress_files(zip_path=str(TESTS_DIR / 'testdata/mts/cohort.mt.zip'),
+                     extract_to=str(TESTS_DIR / 'testdata/mts/cohort.mt'),
+                     remove_originals=False)
+
     # Convert a MatrixTable to a multi-sample VCF
-    mt_path = TESTS_DIR / 'local/tmp/cohort.mt'
-    vcf_output_path =TESTS_DIR / 'local/tmp/cohort.vcf.gz'
+    mt_path = TESTS_DIR / 'testdata/mts/cohort.mt'
+    vcf_output_path =TESTS_DIR / 'testdata/vcf/cohort.vcf.gz'
     convert_mt_to_multi_sample_vcf(mt_path= str(mt_path),
                                    vcf_path= str(vcf_output_path),
                                    filter_adj_genotypes=True,
@@ -66,5 +82,5 @@ def test_convert_mt_to_multi_sample_vcf():
     assert vcf_output_path.exists()
 
     # Cleanup temporary files or directories
-    # if vcf_output_path.exists():
-    #    shutil.rmtree(vcf_output_path)
+    if mt_path.exists():
+        shutil.rmtree(mt_path)

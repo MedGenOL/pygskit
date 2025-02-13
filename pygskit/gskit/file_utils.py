@@ -1,5 +1,9 @@
 import glob
 import os
+import shutil
+import zipfile
+import logging
+
 from typing import List
 
 from pygskit.gskit.constants import GVCF_EXTENSION, GVCF_EXTENSION_TBI
@@ -8,6 +12,8 @@ from pygskit.gskit.constants import GVCF_EXTENSION, GVCF_EXTENSION_TBI
 Utility functions for file handling.
 """
 
+# Configure logging. Adjust the level as needed.
+logging.basicConfig(level=logging.INFO)
 
 def check_file_exists_and_readable(path: str) -> str:
     """
@@ -89,3 +95,42 @@ def get_vcfs_files(directory: str, pattern: str = None) -> List[str]:
         valid_paths.append(abs_path)
 
     return valid_paths
+
+
+def compress_files(source_dir: str, output_zip: str, remove_originals: bool = False) -> None:
+    """
+    Compresses all files in source_dir (including subdirectories) into a single ZIP archive.
+
+    :param source_dir: The directory containing files to compress.
+    :param output_zip: The path to the output ZIP file.
+    :param remove_originals: If True, remove the source directory after compression.
+    """
+    with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for root, _, files in os.walk(source_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                # Use relative path in the archive to preserve folder structure.
+                arcname = os.path.relpath(file_path, source_dir)
+                zipf.write(file_path, arcname)
+    logging.info(f"Compressed '{source_dir}' into '{output_zip}'")
+
+    if remove_originals:
+        shutil.rmtree(source_dir)
+        logging.info(f"Removed original directory '{source_dir}' after compression.")
+
+
+def decompress_files(zip_path: str, extract_to: str, remove_originals: bool = False) -> None:
+    """
+    Decompresses a ZIP archive into the specified directory.
+
+    :param zip_path: The path to the ZIP archive.
+    :param extract_to: The directory to extract the archive contents to.
+    :param remove_originals: If True, remove the ZIP archive after extraction.
+    """
+    with zipfile.ZipFile(zip_path, 'r') as zipf:
+        zipf.extractall(extract_to)
+    logging.info(f"Extracted '{zip_path}' into '{extract_to}'")
+
+    if remove_originals:
+        os.remove(zip_path)
+        logging.info(f"Removed archive file '{zip_path}' after decompression.")
