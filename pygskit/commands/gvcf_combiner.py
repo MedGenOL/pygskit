@@ -39,7 +39,7 @@ def run_gvcf_combiner(
     Combines GVCFs into a VDS using Hail's gvcf combiner.
 
     Parameters:
-        path_to_gvcfs (str): Path to a file containing paths to GVCF files (with corresponding .tbi index files).
+        path_to_gvcfs (str): Path to a directory containing GVCF files and their corresponding .tbi files.
         vds_output_path (str): Output path where the VDS file will be written.
         tmp_path (str): Path to a temporary directory with sufficient disk space.
         driver_memory (str): Memory allocation for the Spark driver (e.g., '256g').
@@ -70,8 +70,8 @@ def run_gvcf_combiner(
     "-d",
     "--path-to-gvcfs",
     required=True,
-    type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
-    help="Path to a file listing GVCF paths along with their corresponding .tbi files.",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True),
+    help="Path to a directory with the gvcf files along with their corresponding .tbi files.",
 )
 @click.option(
     "-o",
@@ -122,7 +122,7 @@ def gvcf_combiner(
     This function parses command-line arguments and initiates the combination process.
 
     Parameters:
-        path_to_gvcfs (str): Path to a file listing GVCF file paths and their .tbi index files.
+        path_to_gvcfs (str): Path to a directory containing GVCF files and their corresponding .tbi files.
         vds_output_path (str): Path where the output VDS file will be stored.
         tmp_path (str): Temporary directory path for intermediate files.
         driver_memory (str): Memory allocation for the Spark driver.

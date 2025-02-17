@@ -15,4 +15,5 @@ git clone https://github.com/MedGenOL/pygskit
 cd pygskit
 conda env create -f environment.yml
 conda activate pygskit
+pip install . -r requirements.txt
 ```
