@@ -28,9 +28,10 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '11'
-    - name: Install PostgreSQL development libraries
-      run: |
-        apt-get update && apt-get install -y libpq-dev
+    - name: install-postgresql
+      uses: tj-actions/install-postgresql@v3.2.0
+      with:
+         postgresql-version: '17'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip

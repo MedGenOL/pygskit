@@ -19,9 +19,10 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '11'
-    - name: Install PostgreSQL development libraries
-      run: |
-        apt-get update && apt-get install -y libpq-dev
+    - name: install-postgresql
+      uses: tj-actions/install-postgresql@v3.2.0
+      with:
+         postgresql-version: '17'
     - name: Add conda to system path
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
