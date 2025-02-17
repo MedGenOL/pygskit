@@ -18,6 +18,7 @@ import click
 import hail as hl
 from pygskit.gskit.combiners import combine_gvcfs
 from pygskit.gskit.utils import init_hail_local
+from pygskit.gskit.constants import HG38_GENOME_REFERENCE
 
 # Configure logging.
 logging.basicConfig(
@@ -51,7 +52,7 @@ def run_gvcf_combiner(
     """
     try:
         # Initialize Hail with the given configuration.
-        init_hail_local(n_cpus=n_cpus, driver_memory=driver_memory, reference_genome=reference_genome)
+        init_hail_local(n_cores=n_cpus, driver_memory=driver_memory, reference_genome=reference_genome)
         logger.info("Starting combination of GVCFs from '%s' into VDS '%s'", path_to_gvcfs, vds_output_path)
 
         # Combine the GVCFs.
@@ -90,7 +91,7 @@ def run_gvcf_combiner(
 @click.option(
     "-dm",
     "--driver-memory",
-    default="256g",
+    default="8g",
     show_default=True,
     help="Memory allocation for the Spark driver.",
 )
@@ -104,11 +105,13 @@ def run_gvcf_combiner(
 @click.option(
     "-rg",
     "--reference-genome",
-    default="GRCh38",
+    default=HG38_GENOME_REFERENCE,
     show_default=True,
     help="Reference genome to use (e.g., GRCh37, GRCh38).",
 )
+@click.pass_context
 def gvcf_combiner(
+    ctx,
     path_to_gvcfs: str,
     vds_output_path: str,
     tmp_path: str,
@@ -117,17 +120,7 @@ def gvcf_combiner(
     reference_genome: str,
 ) -> None:
     """
-    CLI entry point for combining GVCFs into a VDS using Hail's gvcf combiner.
-
-    This function parses command-line arguments and initiates the combination process.
-
-    Parameters:
-        path_to_gvcfs (str): Path to a directory containing GVCF files and their corresponding .tbi files.
-        vds_output_path (str): Path where the output VDS file will be stored.
-        tmp_path (str): Temporary directory path for intermediate files.
-        driver_memory (str): Memory allocation for the Spark driver.
-        n_cpus (int): Number of CPUs to allocate for computation.
-        reference_genome (str): The reference genome version (e.g., GRCh37, GRCh38).
+    Combine GVCFs into a VDS using Hail's gvcf combiner.
     """
     logger.info("Initializing GVCF combiner")
     run_gvcf_combiner(
@@ -138,8 +131,3 @@ def gvcf_combiner(
         n_cpus=n_cpus,
         reference_genome=reference_genome,
     )
-
-
-if __name__ == "__main__":
-    gvcf_combiner()
-
