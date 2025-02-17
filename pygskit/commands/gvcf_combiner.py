@@ -1,14 +1,13 @@
-#!/usr/bin/env python
 """
-This script combines GVCFs into a VDS using Hail's gvcf combiner.
+Combine GVCFs into a VDS using Hail's gvcf combiner.
 
 Usage:
-    python gvcf_combiner.py --path-to-gvcfs <path> \
-                            --vds-output-path <path> \
-                            --tmp-path <path> \
-                            --driver-memory <str> \
-                            --local <str> \
-                            --reference-genome <str>
+    pygskit gvcf_combiner.py --path-to-gvcfs <path> \
+                             --vds-output-path <path> \
+                             --tmp-path <path> \
+                             --driver-memory <str> \
+                             --n-cpus <int> \
+                             --reference-genome <str>
 """
 
 import logging
@@ -17,10 +16,10 @@ from typing import NoReturn
 
 import click
 import hail as hl
-from pygskit.gskit.combiners import combine_gvcfs  # The actual combining function.
-from pygskit.gskit.utils import init_hail_local  # Initializes Hail with the desired configuration.
+from pygskit.gskit.combiners import combine_gvcfs
+from pygskit.gskit.utils import init_hail_local
 
-# Set up logging.
+# Configure logging.
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -40,23 +39,29 @@ def run_gvcf_combiner(
     Combines GVCFs into a VDS using Hail's gvcf combiner.
 
     Parameters:
-        path_to_gvcfs (str): Path to the file listing GVCF paths.
-        vds_output_path (str): Output path for the VDS file.
-        tmp_path (str): Temporary directory path with sufficient space.
-        n_cpus: Number of CPUs to use for local computation.
-        driver_memory (str): Memory allocation for the Spark driver.
-        reference_genome (str): Reference genome to use (e.g., GRCh37, GRCh38).
+        path_to_gvcfs (str): Path to a file containing paths to GVCF files (with corresponding .tbi index files).
+        vds_output_path (str): Output path where the VDS file will be written.
+        tmp_path (str): Path to a temporary directory with sufficient disk space.
+        driver_memory (str): Memory allocation for the Spark driver (e.g., '256g').
+        n_cpus (int): Number of CPUs to allocate for local computation.
+        reference_genome (str): The reference genome to use (e.g., 'GRCh37', 'GRCh38').
+
+    Raises:
+        SystemExit: Exits with status 1 if an error occurs during combination.
     """
     try:
-        init_hail_local(n_cpus, driver_memory, reference_genome)
-        logger.info("Combining GVCFs from '%s' into VDS '%s'", path_to_gvcfs, vds_output_path)
+        # Initialize Hail with the given configuration.
+        init_hail_local(n_cpus=n_cpus, driver_memory=driver_memory, reference_genome=reference_genome)
+        logger.info("Starting combination of GVCFs from '%s' into VDS '%s'", path_to_gvcfs, vds_output_path)
+
+        # Combine the GVCFs.
         combine_gvcfs(path_to_gvcfs, vds_output_path, tmp_path)
-        logger.info("Successfully combined GVCFs into VDS")
+        logger.info("Successfully combined GVCFs into VDS at '%s'", vds_output_path)
     except Exception as e:
-        logger.error("An error occurred during GVCF combination: %s", str(e), exc_info=True)
+        logger.exception("An error occurred during the GVCF combination")
         sys.exit(1)
     finally:
-        logger.info("Stopping Hail")
+        logger.info("Stopping Hail session")
         hl.stop()
 
 
@@ -66,28 +71,28 @@ def run_gvcf_combiner(
     "--path-to-gvcfs",
     required=True,
     type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
-    help="Path to the file containing GVCF paths and its corresponding tbi files.",
+    help="Path to a file listing GVCF paths along with their corresponding .tbi files.",
 )
 @click.option(
     "-o",
     "--vds-output-path",
     required=True,
     type=click.Path(),
-    help="Output path for the VDS file.",
+    help="Output path for the resulting VDS file.",
 )
 @click.option(
     "-t",
     "--tmp-path",
     required=True,
     type=click.Path(file_okay=False, dir_okay=True, writable=True),
-    help="Temporary directory path with enough space.",
+    help="Temporary directory path with enough space to store intermediate files.",
 )
 @click.option(
     "-dm",
     "--driver-memory",
     default="256g",
     show_default=True,
-    help="Memory allocation for Spark driver.",
+    help="Memory allocation for the Spark driver.",
 )
 @click.option(
     "-nc",
@@ -112,17 +117,29 @@ def gvcf_combiner(
     reference_genome: str,
 ) -> None:
     """
-    Combine GVCFs into a VDS using Hail's gvcf combiner.
+    CLI entry point for combining GVCFs into a VDS using Hail's gvcf combiner.
+
+    This function parses command-line arguments and initiates the combination process.
 
     Parameters:
-        path_to_gvcfs (str): Path to the file listing GVCF paths.
-        vds_output_path (str): Output path for the VDS file.
-        tmp_path (str): Temporary directory path with sufficient space.
+        path_to_gvcfs (str): Path to a file listing GVCF file paths and their .tbi index files.
+        vds_output_path (str): Path where the output VDS file will be stored.
+        tmp_path (str): Temporary directory path for intermediate files.
         driver_memory (str): Memory allocation for the Spark driver.
-        n_cpus: Number of CPUs to use for local computation.
-        reference_genome (str): Reference genome to use (e.g., GRCh37, GRCh38).
+        n_cpus (int): Number of CPUs to allocate for computation.
+        reference_genome (str): The reference genome version (e.g., GRCh37, GRCh38).
     """
-    logger.info("Starting GVCF combiner")
+    logger.info("Initializing GVCF combiner")
     run_gvcf_combiner(
-        path_to_gvcfs, vds_output_path, tmp_path, driver_memory, n_cpus, reference_genome
+        path_to_gvcfs=path_to_gvcfs,
+        vds_output_path=vds_output_path,
+        tmp_path=tmp_path,
+        driver_memory=driver_memory,
+        n_cpus=n_cpus,
+        reference_genome=reference_genome,
     )
+
+
+if __name__ == "__main__":
+    gvcf_combiner()
+
