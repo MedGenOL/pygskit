@@ -1,4 +1,7 @@
 import shutil
+
+from sympy.physics.units import planck
+
 from pygskit.gskit.utils import init_hail_local
 from pygskit.gskit.file_utils import compress_files, decompress_files
 from pygskit.gskit.combiners import combine_gvcfs
@@ -25,8 +28,14 @@ def test_combine_gvcfs():
     gvcf_dir = TESTS_DIR / "testdata/gvcfs"
     vds_output_path = TESTS_DIR / "testdata/vds/cohort.vds"
     tmp_path = TESTS_DIR.parent / "local/tmp"
+    plan_path = tmp_path / "combiner_plan.json"
     combine_gvcfs(
-        gvcf_dir=str(gvcf_dir), vds_output_path=str(vds_output_path), tmp_path=str(tmp_path)
+        gvcf_dir=str(gvcf_dir),
+        vds_output_path=str(vds_output_path),
+        tmp_path=str(tmp_path),
+        save_path=str(plan_path),
+        vdses=[],
+        kwargs={},
     )
 
     # Check if the vds_output_path / 'reference_data/_SUCCESS' file exists

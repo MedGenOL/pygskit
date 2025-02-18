@@ -12,7 +12,7 @@ Usage:
 
 import logging
 import sys
-from typing import NoReturn
+from typing import NoReturn, List
 
 import click
 import hail as hl
@@ -32,9 +32,12 @@ def run_gvcf_combiner(
     path_to_gvcfs: str,
     vds_output_path: str,
     tmp_path: str,
+    save_path: str,
+    vdses: List[str],
     driver_memory: str,
     n_cpus: int,
     reference_genome: str,
+    **kwargs,
 ) -> NoReturn:
     """
     Combines GVCFs into a VDS using Hail's gvcf combiner.
@@ -43,9 +46,12 @@ def run_gvcf_combiner(
         path_to_gvcfs (str): Path to a directory containing GVCF files and their corresponding .tbi files.
         vds_output_path (str): Output path where the VDS file will be written.
         tmp_path (str): Path to a temporary directory with sufficient disk space.
+        save_path (str): Path to save the combiner plan.
+        vdses (List[str]): List of VDS paths to be combined.
         driver_memory (str): Memory allocation for the Spark driver (e.g., '256g').
         n_cpus (int): Number of CPUs to allocate for local computation.
         reference_genome (str): The reference genome to use (e.g., 'GRCh37', 'GRCh38').
+        **kwargs: Additional keyword arguments to pass to the combiner.
 
     Raises:
         SystemExit: Exits with status 1 if an error occurs during combination.
@@ -56,7 +62,7 @@ def run_gvcf_combiner(
         logger.info("Starting combination of GVCFs from '%s' into VDS '%s'", path_to_gvcfs, vds_output_path)
 
         # Combine the GVCFs.
-        combine_gvcfs(path_to_gvcfs, vds_output_path, tmp_path)
+        combine_gvcfs(path_to_gvcfs, vds_output_path, tmp_path, save_path, vdses, **kwargs)
         logger.info("Successfully combined GVCFs into VDS at '%s'", vds_output_path)
     except Exception as e:
         logger.exception("An error occurred during the GVCF combination")
@@ -89,6 +95,20 @@ def run_gvcf_combiner(
     help="Temporary directory path with enough space to store intermediate files.",
 )
 @click.option(
+    "-sp",
+    "--save-path-plan",
+    required=True,
+    type=click.Path(file_okay=False, dir_okay=True, writable=True),
+    help="Path to save the combiner plan.",
+)
+@click.option(
+    "-v",
+    "--vdses",
+    required=True,
+    type=List[str],
+    help="List of VDS paths to be combined.",
+)
+@click.option(
     "-dm",
     "--driver-memory",
     default="8g",
@@ -107,17 +127,25 @@ def run_gvcf_combiner(
     "--reference-genome",
     default=HG38_GENOME_REFERENCE,
     show_default=True,
-    help="Reference genome to use (e.g., GRCh37, GRCh38).",
+    help="Reference genome to use (e.g., GRCh37, GRCh38)."
 )
+@click.option(
+    "--kwargs",
+    type=dict,
+    default={},
+    help="Additional keyword arguments to pass to the combiner.")
 @click.pass_context
 def gvcf_combiner(
     ctx,
     path_to_gvcfs: str,
     vds_output_path: str,
     tmp_path: str,
+    save_path_plan: str,
+    vdses: List[str],
     driver_memory: str,
     n_cpus: int,
     reference_genome: str,
+    kwargs: dict,
 ) -> None:
     """
     Combine GVCFs into a VDS using Hail's gvcf combiner.
@@ -127,7 +155,10 @@ def gvcf_combiner(
         path_to_gvcfs=path_to_gvcfs,
         vds_output_path=vds_output_path,
         tmp_path=tmp_path,
+        save_path=save_path_plan,
+        vdses=vdses,
         driver_memory=driver_memory,
         n_cpus=n_cpus,
         reference_genome=reference_genome,
+        **kwargs,
     )

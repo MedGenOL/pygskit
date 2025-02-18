@@ -32,7 +32,7 @@ def init_hail_local(
     )
 
     hl.init(
-        local=f"local[{n_cores}]",
+        master=f"local[{n_cores}]",
         spark_conf={"spark.driver.memory": driver_memory},
         default_reference=reference_genome,
     )

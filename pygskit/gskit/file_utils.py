@@ -6,7 +6,7 @@ import logging
 
 from typing import List
 
-from pygskit.gskit.constants import GVCF_EXTENSION, GVCF_EXTENSION_TBI
+from pygskit.gskit.constants import GVCF_EXTENSION, GVCF_EXTENSION_TBI, VDS_EXTENSION
 
 """
 Utility functions for file handling.
@@ -16,31 +16,31 @@ Utility functions for file handling.
 logging.basicConfig(level=logging.INFO)
 
 
-def check_file_exists_and_readable(path: str) -> str:
+def check_path_exists_and_readable(path: str) -> str:
     """
-    Check if a file exists, is a regular file, and is readable.
+    Check if a file or directory exists and is readable.
 
     Parameters:
-        path (str): Path to the file (absolute or relative).
+        path (str): Path to the file or directory (absolute or relative).
 
     Returns:
-        str: The original file path if it exists and is readable.
+        str: The original path if it exists and is readable.
 
     Raises:
-        FileNotFoundError: If the file does not exist or the path does not point to a file.
-        PermissionError: If the file exists but is not readable.
+        FileNotFoundError: If the file or directory does not exist or the path does not point to a valid file or directory.
+        PermissionError: If the file or directory exists but is not readable.
     """
     if not os.path.exists(path):
-        raise FileNotFoundError(f"File '{path}' not found.")
-    if not os.path.isfile(path):
-        raise FileNotFoundError(f"Path '{path}' is not a file.")
+        raise FileNotFoundError(f"File or directory '{path}' not found.")
+    if not (os.path.isfile(path) or os.path.isdir(path)):
+        raise FileNotFoundError(f"Path '{path}' is not a valid file or directory.")
     if not os.access(path, os.R_OK):
-        raise PermissionError(f"File '{path}' is not readable.")
+        raise PermissionError(f"File or directory '{path}' is not readable.")
 
     return path
 
 
-def get_vcfs_files(directory: str, pattern: str = None) -> List[str]:
+def validate_vcfs_paths(directory: str, pattern: str = None) -> List[str]:
     """
     Retrieve and validate a list of absolute paths to GVCF files in the given directory.
 
@@ -84,18 +84,42 @@ def get_vcfs_files(directory: str, pattern: str = None) -> List[str]:
             raise ValueError(f"File '{abs_path}' does not end with '{GVCF_EXTENSION}'.")
 
         # Validate that the GVCF file exists and is readable.
-        check_file_exists_and_readable(abs_path)
+        check_path_exists_and_readable(abs_path)
 
         # Compute the corresponding TBI file path by replacing the GVCF extension with the TBI extension.
         base = abs_path[: -len(GVCF_EXTENSION)]
         tbi_path = base + GVCF_EXTENSION_TBI
 
         # Validate that the TBI file exists and is readable.
-        check_file_exists_and_readable(tbi_path)
+        check_path_exists_and_readable(tbi_path)
 
         valid_paths.append(abs_path)
 
     return valid_paths
+
+
+def validate_vds_paths(vds_paths: List[str]) -> List[str]:
+    """
+    Validate a list of VDS file paths.
+
+    This function checks that each path corresponds to an existing, readable file and has the correct extension.
+
+    Parameters:
+        vds_paths (List[str]): List of paths to VDS files.
+
+    Returns:
+        List[str]: List of validated VDS file paths.
+
+    Raises:
+        FileNotFoundError or PermissionError: If a file does not exist or is not readable.
+    """
+    # check VDS has the correct extension, is a directory, and is readable
+    for vds_path in vds_paths:
+        check_path_exists_and_readable(vds_path)
+        if not vds_path.endswith(VDS_EXTENSION):
+            raise ValueError(f"File '{vds_path}' does not end with '{VDS_EXTENSION}'.")
+    return vds_paths
+
 
 
 def compress_files(source_dir: str, output_zip: str, remove_originals: bool = False) -> None:
