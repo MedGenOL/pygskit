@@ -98,7 +98,7 @@ def run_gvcf_combiner(
     "-sp",
     "--save-path-plan",
     required=True,
-    type=click.Path(file_okay=False, dir_okay=True, writable=True),
+    type=click.Path(file_okay=True, dir_okay=False, writable=True),
     help="Path to save the combiner plan.",
 )
 @click.option(
