@@ -104,8 +104,8 @@ def run_gvcf_combiner(
 @click.option(
     "-v",
     "--vdses",
-    required=True,
-    type=List[str],
+    required=False,
+    type=list[str],
     help="List of VDS paths to be combined.",
 )
 @click.option(
@@ -160,5 +160,5 @@ def gvcf_combiner(
         driver_memory=driver_memory,
         n_cpus=n_cpus,
         reference_genome=reference_genome,
-        **kwargs,
+        kwargs=kwargs,
     )
