@@ -98,27 +98,39 @@ def validate_vcfs_paths(directory: str, pattern: str = None) -> List[str]:
     return valid_paths
 
 
-def validate_vds_paths(vds_paths: List[str]) -> List[str]:
+def validate_vds_paths(vdses_dir: str) -> List[str]:
     """
-    Validate a list of VDS file paths.
+    Validate a directory containing VDS directories.
 
-    This function checks that each path corresponds to an existing, readable file and has the correct extension.
+    This function checks that the provided container directory exists and is readable.
+    It then iterates over all entries in the container, validating that each entry that
+    is a directory exists, is readable, and its name ends with the expected VDS_EXTENSION,
+    indicating it is a valid VDS.
 
     Parameters:
-        vds_paths (List[str]): List of paths to VDS files.
+        vdses_dir (str): Path to the container directory with VDS directories.
 
     Returns:
-        List[str]: List of validated VDS file paths.
+        List[str]: List of validated VDS directory paths found in the container.
 
     Raises:
-        FileNotFoundError or PermissionError: If a file does not exist or is not readable.
+        NotADirectoryError: If the provided path is not a directory.
+        FileNotFoundError or PermissionError: If a directory does not exist or is not accessible.
+        ValueError: If a directory does not end with the expected VDS_EXTENSION.
     """
-    # check VDS has the correct extension, is a directory, and is readable
-    for vds_path in vds_paths:
-        check_path_exists_and_readable(vds_path)
-        if not vds_path.endswith(VDS_EXTENSION):
-            raise ValueError(f"File '{vds_path}' does not end with '{VDS_EXTENSION}'.")
-    return vds_paths
+    if not os.path.isdir(vdses_dir):
+        raise NotADirectoryError(f"'{vdses_dir}' is not a directory.")
+
+    validated_paths = []
+    for entry in os.listdir(vdses_dir):
+        full_path = os.path.join(vdses_dir, entry)
+        # Process only directories, since a VDS is actually a directory.
+        if os.path.isdir(full_path):
+            check_path_exists_and_readable(full_path)
+            if not entry.endswith(VDS_EXTENSION):
+                raise ValueError(f"Directory '{full_path}' does not end with '{VDS_EXTENSION}'.")
+            validated_paths.append(full_path)
+    return validated_paths
 
 
 
