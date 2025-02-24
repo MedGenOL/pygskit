@@ -3,6 +3,7 @@ from pathlib import Path
 import click
 from pygskit.commands.gvcf_combiner import gvcf_combiner
 from pygskit.commands.vds2mt import vds2mt
+from pygskit.commands.vds_combiner import vds_combiner
 
 import pygskit.__init__ as __init__
 
@@ -60,6 +61,7 @@ def cli(log_level: str, log_file: Path):
 # Add subcommands to the CLI
 cli.add_command(gvcf_combiner)
 cli.add_command(vds2mt)
+cli.add_command(vds_combiner)
 
 
 def main():

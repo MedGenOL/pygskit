@@ -4,7 +4,7 @@ import shutil
 import zipfile
 import logging
 
-from typing import List
+from typing import Union, List
 
 from pygskit.gskit.constants import GVCF_EXTENSION, GVCF_EXTENSION_TBI, VDS_EXTENSION
 
@@ -98,39 +98,56 @@ def validate_vcfs_paths(directory: str, pattern: str = None) -> List[str]:
     return valid_paths
 
 
-def validate_vds_paths(vdses_dir: str) -> List[str]:
+def validate_vds_paths(vdses: Union[str, List[str]]) -> List[str]:
     """
-    Validate a directory containing VDS directories.
+    Validate VDS directories given either as a container directory or a list of VDS paths.
 
-    This function checks that the provided container directory exists and is readable.
-    It then iterates over all entries in the container, validating that each entry that
-    is a directory exists, is readable, and its name ends with the expected VDS_EXTENSION,
-    indicating it is a valid VDS.
+    If a directory is provided, the function checks that it exists and is readable, then iterates
+    over all entries in the container. For each entry that is a directory, it verifies the directory
+    is accessible and its name ends with the expected VDS_EXTENSION.
+
+    If a list of paths is provided, each path is validated individually in a similar manner.
 
     Parameters:
-        vdses_dir (str): Path to the container directory with VDS directories.
+        vdses (Union[str, List[str]]): Either a single directory path that contains VDS directories,
+                                       or a list of individual VDS directory paths.
 
     Returns:
-        List[str]: List of validated VDS directory paths found in the container.
+        List[str]: List of validated VDS directory paths.
 
     Raises:
-        NotADirectoryError: If the provided path is not a directory.
+        NotADirectoryError: If a provided path expected to be a directory is not one.
         FileNotFoundError or PermissionError: If a directory does not exist or is not accessible.
         ValueError: If a directory does not end with the expected VDS_EXTENSION.
     """
-    if not os.path.isdir(vdses_dir):
-        raise NotADirectoryError(f"'{vdses_dir}' is not a directory.")
-
     validated_paths = []
-    for entry in os.listdir(vdses_dir):
-        full_path = os.path.join(vdses_dir, entry)
-        # Process only directories, since a VDS is actually a directory.
-        if os.path.isdir(full_path):
-            check_path_exists_and_readable(full_path)
-            if not entry.endswith(VDS_EXTENSION):
-                raise ValueError(f"Directory '{full_path}' does not end with '{VDS_EXTENSION}'.")
-            validated_paths.append(full_path)
+
+    if isinstance(vdses, str):
+        # vdses is a container directory
+        if not os.path.isdir(vdses):
+            raise NotADirectoryError(f"'{vdses}' is not a directory.")
+        for entry in os.listdir(vdses):
+            full_path = os.path.join(vdses, entry)
+            if os.path.isdir(full_path):
+                check_path_exists_and_readable(full_path)
+                if not entry.endswith(VDS_EXTENSION):
+                    raise ValueError(f"Directory '{full_path}' does not end with '{VDS_EXTENSION}'.")
+                validated_paths.append(full_path)
+    elif isinstance(vdses, list):
+        # vdses is a list of directory paths
+        for path in vdses:
+            if not os.path.isdir(path):
+                raise NotADirectoryError(f"'{path}' is not a directory.")
+            check_path_exists_and_readable(path)
+            base_name = os.path.basename(path)
+            if not base_name.endswith(VDS_EXTENSION):
+                raise ValueError(f"Directory '{path}' does not end with '{VDS_EXTENSION}'.")
+            validated_paths.append(path)
+    else:
+        raise ValueError("Input must be either a directory path (str) or a list of directory paths.")
+
     return validated_paths
+
 
 
 
