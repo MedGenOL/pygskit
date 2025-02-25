@@ -163,8 +163,11 @@ cython_debug/
 
 
 
-# user specific
+## user specific
 local/
 testscripts/
+
+# Ignore all .crc files
+*.crc
 
 .qodo

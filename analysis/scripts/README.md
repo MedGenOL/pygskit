@@ -1,0 +1,1 @@
+Custom scripts for data analysis and visualization should be stored in the `scripts/` directory.

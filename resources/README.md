@@ -1,1 +1,0 @@
-The `resources` directory storages references, intervals files, gene list and other resources used in the analysis.
