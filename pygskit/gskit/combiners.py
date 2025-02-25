@@ -6,12 +6,14 @@ import hail as hl
 from pygskit.gskit.file_utils import validate_vcfs_paths, validate_vds_paths
 
 
-def combine_gvcfs(gvcf_dir: str,
-                  vds_output_path: str,
-                  tmp_path: str,
-                  save_path: str,
-                  vdses: List[str],
-                  kwargs: {}) -> None:
+def combine_gvcfs(
+    gvcf_dir: str,
+    vds_output_path: str,
+    tmp_path: str,
+    save_path: str,
+    vdses: List[str],
+    kwargs: {},
+) -> None:
     """
     Combines GVCF files into a VDS using Hail's GVCF combiner.
 
@@ -57,7 +59,7 @@ def combine_gvcfs(gvcf_dir: str,
             gvcf_paths=validated_gvcfs,
             save_path=save_path,
             vds_paths=validated_vdses,
-            use_genome_default_intervals=True, # TODO: Use default intervals for the genome, but must be customized
+            use_genome_default_intervals=True,  # TODO: Use default intervals for the genome, but must be customized
             **kwargs,
         )
         combiner.run()
@@ -70,10 +72,9 @@ def combine_gvcfs(gvcf_dir: str,
         logging.info("GVCF combination completed successfully.")
 
 
-def combine_vdses(vdses_dir: str,
-                  output_path: str,
-                  validate: bool = True,
-                  overwrite: bool = False) -> None:
+def combine_vdses(
+    vdses_dir: str, output_path: str, validate: bool = True, overwrite: bool = False
+) -> None:
     """
     Combine multiple VDS directories into a single VDS.
 
@@ -125,3 +126,90 @@ def combine_vdses(vdses_dir: str,
     finally:
         logging.info(f"Combined VDS written to {output_path}")
 
+
+def combine_matrix_table_rows(
+    mt_paths: List[str], output_path: str, n_partitions: int, overwrite: bool = False, kwargs=None
+) -> None:
+    """
+    Combine multiple MatrixTables by rows into a single MatrixTable.
+
+    This function takes a list of MatrixTable paths, reads each MatrixTable, combines their rows (e.g., variants)
+    using Hail's union_rows, optionally validates the resulting MatrixTable, and writes the result
+    to the specified output path.
+
+    Parameters:
+        mt_paths (List[str]): List of MatrixTable paths to combine.
+        output_path (str): Path where the combined MatrixTable will be written.
+        n_partitions: Number of partitions to use when writing the combined MatrixTable.
+        overwrite (bool): Whether to overwrite the output if it already exists.
+        kwargs: Additional keyword arguments to pass to the Hail's union_rows function.
+
+    Raises:
+        ValueError: If no valid MatrixTables are found.
+        Exception: If an error occurs during MatrixTable combination or writing.
+    """
+    if kwargs is None:
+        kwargs = {}
+    try:
+        # Combine the MatrixTables using Hail's union_rows function.
+        mts = [hl.read_matrix_table(path) for path in mt_paths]
+        combined_mt = hl.MatrixTable.union_rows(*mts, **kwargs)
+        logging.info("Successfully combined MatrixTables.")
+
+        # Repartition the combined MatrixTable and write it to the output path.
+        if n_partitions:
+            combined_mt = combined_mt.repartition(n_partitions)
+
+        # Write the combined MatrixTable to the output path.
+        combined_mt.write(output_path, overwrite=overwrite)
+
+    except Exception as e:
+        logging.exception("An error occurred during MatrixTable combination.")
+        raise
+
+    finally:
+        logging.info(f"Combined MatrixTable written to {output_path}")
+
+
+def combine_matrix_table_cols(
+    mt_paths: List[str], output_path: str, n_partitions: int, overwrite: bool = False, kwargs=None
+) -> None:
+    """
+    Combine multiple MatrixTables by columns into a single MatrixTable.
+
+    This function takes a list of MatrixTable paths, reads each MatrixTable, combines their columns (e.g., samples)
+    using Hail's union_cols, optionally validates the resulting MatrixTable, and writes the result
+    to the specified output path.
+
+    Parameters:
+        mt_paths (List[str]): List of MatrixTable paths to combine.
+        output_path (str): Path where the combined MatrixTable will be written.
+        n_partitions (bool): Number of partitions to use when writing the combined MatrixTable.
+        overwrite (bool): Whether to overwrite the output if it already exists.
+        kwargs: Additional keyword arguments to pass to the Hail's union_cols function.
+
+    Raises:
+        ValueError: If no valid MatrixTables are found.
+        Exception: If an error occurs during MatrixTable combination or writing.
+    """
+    if kwargs is None:
+        kwargs = {}
+    try:
+        # Combine the MatrixTables using Hail's union_cols function.
+        mts = [hl.read_matrix_table(path) for path in mt_paths]
+        combined_mt = hl.MatrixTable.union_cols(*mts, **kwargs)
+        logging.info("Successfully combined MatrixTables.")
+
+        # Repartition the combined MatrixTable and write it to the output path.
+        if n_partitions:
+            combined_mt = combined_mt.repartition(n_partitions)
+
+        # Write the combined MatrixTable to the output path.
+        combined_mt.write(output_path, overwrite=overwrite)
+
+    except Exception as e:
+        logging.exception("An error occurred during MatrixTable combination.")
+        raise
+
+    finally:
+        logging.info(f"Combined MatrixTable written to {output_path}")

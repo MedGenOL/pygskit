@@ -1,6 +1,7 @@
 import sys
 import click
 import hail as hl
+from pygskit.gskit.utils import init_hail_local
 from pygskit.gskit.converters import convert_vds_to_mt
 from pygskit.gskit.constants import HG38_GENOME_REFERENCE
 
@@ -36,11 +37,7 @@ def run_vds2mt(
         overwrite (bool): If True, overwrite the output MatrixTable if it exists.
     """
     # Initialize Hail with the provided configuration.
-    hl.init(
-        local=f"local[{local_cores}]",
-        spark_conf={"spark.driver.memory": driver_memory},
-        default_reference=reference_genome,
-    )
+    init_hail_local(n_cores=local_cores, driver_memory=driver_memory, reference_genome=reference_genome)
 
     try:
         convert_vds_to_mt(
