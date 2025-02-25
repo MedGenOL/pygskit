@@ -1,6 +1,7 @@
 import sys
 import click
 import hail as hl
+from pygskit.gskit.utils import init_hail_local
 from pygskit.gskit.converters import convert_vds_to_mt
 from pygskit.gskit.constants import HG38_GENOME_REFERENCE
 
@@ -10,6 +11,7 @@ def run_vds2mt(
     output_path: str,
     annotate_adjusted_gt: bool,
     skip_split_multi: bool,
+    skip_keying_by_cols: bool,
     local_cores: int,
     driver_memory: str,
     reference_genome: str,
@@ -28,17 +30,14 @@ def run_vds2mt(
         annotate_adjusted_gt (bool): If True, annotate the MatrixTable with adjusted genotypes.
                                      Recommended for downstream analyses.
         skip_split_multi (bool): If True, skip splitting multi-allelic variants.
+        skip_keying_by_cols (bool): If True, skip keying the MatrixTable by columns.
         local_cores (int): Number of local cores for Hail initialization.
         driver_memory (str): Memory allocated to the Spark driver.
         reference_genome (str): Reference genome to use (e.g., 'GRCh37', 'GRCh38').
         overwrite (bool): If True, overwrite the output MatrixTable if it exists.
     """
     # Initialize Hail with the provided configuration.
-    hl.init(
-        local=f"local[{local_cores}]",
-        spark_conf={"spark.driver.memory": driver_memory},
-        default_reference=reference_genome,
-    )
+    init_hail_local(n_cores=local_cores, driver_memory=driver_memory, reference_genome=reference_genome)
 
     try:
         convert_vds_to_mt(
@@ -46,6 +45,7 @@ def run_vds2mt(
             output_path=output_path,
             adjust_genotypes=annotate_adjusted_gt,
             skip_split_multi=skip_split_multi,
+            skip_keying_by_cols=skip_keying_by_cols,
             overwrite=overwrite,
         )
 
@@ -81,6 +81,12 @@ def run_vds2mt(
     help="Skip splitting multi-allelic variants.",
 )
 @click.option(
+    "--skip-keying-by-cols",
+    is_flag=True,
+    default=False,
+    help="Skip keying the MatrixTable by columns.",
+)
+@click.option(
     "-dm",
     "--driver-memory",
     default="8g",
@@ -114,6 +120,7 @@ def vds2mt(
     output_path: str,
     annotate_adjusted_gt: bool,
     skip_split_multi: bool,
+    skip_keying_by_cols: bool,
     n_cpus: int,
     driver_memory: str,
     reference_genome: str,
@@ -128,6 +135,7 @@ def vds2mt(
         output_path=output_path,
         annotate_adjusted_gt=annotate_adjusted_gt,
         skip_split_multi=skip_split_multi,
+        skip_keying_by_cols=skip_keying_by_cols,
         local_cores=n_cpus,
         driver_memory=driver_memory,
         reference_genome=reference_genome,

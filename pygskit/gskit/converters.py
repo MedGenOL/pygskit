@@ -8,7 +8,8 @@ def convert_vds_to_mt(
     vds_path: str,
     output_path: str,
     adjust_genotypes: bool = True,
-    skip_split_multi: bool = True,
+    skip_split_multi: bool = False,
+    skip_keying_by_cols: bool = False,
     overwrite: bool = False,
 ) -> None:
     """
@@ -20,25 +21,30 @@ def convert_vds_to_mt(
         output_path (str): Path where the output MatrixTable will be written.
         adjust_genotypes (bool): If True, annotate the MatrixTable with adjusted genotypes.
         skip_split_multi (bool): If True, skip splitting multi-allelic variants.
+        skip_keying_by_cols (bool): If True, skip keying the MatrixTable by columns.
         overwrite (bool): Whether to overwrite the output if it already exists.
     """
     try:
         logging.info(f"Reading VDS from {vds_path}...")
         vds = hl.vds.read_vds(vds_path)
 
-        if not skip_split_multi:
-            logging.info("Splitting multi-allelic variants...")
-            vds = hl.vds.split_multi(vds)
-
         logging.info("Converting VDS to dense MatrixTable...")
         mt = hl.vds.to_dense_mt(vds)
 
+        if not skip_split_multi:
+            logging.info("Splitting multi-allelic variants...")
+            mt = hl.split_multi_hts(mt)
+
         if adjust_genotypes:
             logging.info("Annotating MatrixTable with adjusted genotypes...")
-            mt = annotate_adj(mt)  # Ensure annotate_adj is defined or imported
+            mt = annotate_adj(mt)
 
         # convert LGT to GT
         mt = mt.annotate_entries(GT=hl.vds.lgt_to_gt(mt.LGT, mt.LA))
+
+        if not skip_keying_by_cols:
+            logging.info("Keying MatrixTable by columns...")
+            mt = mt.key_cols_by(mt['s'])
 
         logging.info("MatrixTable schema:")
         logging.info(mt.describe())
@@ -49,7 +55,7 @@ def convert_vds_to_mt(
 
     except Exception as e:
         logging.exception("An error occurred during VDS to MT conversion.")
-        raise  # Optionally re-raise the exception if needed for further handling
+        raise
 
     finally:
         hl.stop()
