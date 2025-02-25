@@ -22,7 +22,7 @@ def test_combine_gvcfs():
     :return: None
     """
     # Initialize Hail in local mode
-    init_hail_local(n_cores=4, driver_memory="8g", reference_genome=HG38_GENOME_REFERENCE)
+    init_hail_local()
 
     # Combine GVCFs into a VDS
     gvcf_dir = TESTS_DIR / "testdata/gvcfs"
@@ -50,6 +50,8 @@ def test_combine_gvcfs():
         remove_originals=True,
     )
 
+    hl.stop()
+
 
 
 def test_combine_matrix_table_rows():
@@ -59,7 +61,7 @@ def test_combine_matrix_table_rows():
     :return: None
     """
     # Initialize Hail in local mode
-    init_hail_local(n_cores=4, driver_memory="8g", reference_genome=HG38_GENOME_REFERENCE)
+    init_hail_local()
 
     # decompress the MatrixTable zip file
     decompress_files(
@@ -88,6 +90,8 @@ def test_combine_matrix_table_rows():
     shutil.rmtree(mt1_path)
     shutil.rmtree(mt_output_path)
 
+    hl.stop()
+
 
 def test_combine_matrix_table_cols():
     """
@@ -96,7 +100,7 @@ def test_combine_matrix_table_cols():
     :return: None
     """
     # Initialize Hail in local mode
-    hl.init()
+    init_hail_local()
 
     # decompress the MatrixTable zip file
     decompress_files(

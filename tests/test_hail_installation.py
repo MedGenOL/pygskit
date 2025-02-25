@@ -10,6 +10,7 @@ from pygskit.gskit.utils import init_hail_local
 
 
 def test_hail_installed():
+
     import hail as hl
 
     # Initialize Hail in local mode
@@ -21,6 +22,3 @@ def test_hail_installed():
     assert mt.count() == (100, 10)
     hl.stop()
 
-
-if __name__ == "__main__":
-    test_hail_installed()
