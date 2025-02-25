@@ -106,7 +106,7 @@ def combine_vdses(vdses_dir: str,
         logging.info(f"Validated {len(vdses_paths)} VDS directories.")
 
         # Combine the VDS directories using Hail's union_rows function.
-        vdses = [hl.vds.read_vds(path) for path in vdses_paths]
+        vdses = [(hl.vds.read_vds(path)) for path in vdses_paths]
         combined_vds = hl.vds.VariantDataset.union_rows(*vdses)
         logging.info("Successfully combined VDS directories.")
 
