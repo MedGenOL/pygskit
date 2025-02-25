@@ -24,6 +24,7 @@ def run_mts_combiner(
         overwrite: bool,
         combine_by: str,
         n_partitions: int,
+        force_sort_cols: bool,
         n_cpus: int,
         driver_memory: str,
         reference_genome: str
@@ -37,6 +38,7 @@ def run_mts_combiner(
         overwrite (bool): Whether to overwrite the output if it already exists.
         combine_by (str): The method to use for combining the MatrixTables. Options are 'rows' and 'cols'.
         n_partitions (int): Number of partitions to use when writing the combined MatrixTable.
+        force_sort_cols (bool): Whether to sort the columns of the MatrixTables before combining.
         driver_memory (str): Memory allocation for the Spark driver.
         n_cpus (int): Number of CPUs to allocate for local computation.
         reference_genome (str): Reference genome to init Hail with.
@@ -54,7 +56,11 @@ def run_mts_combiner(
 
         # Combine the MatrixTable directories.
         if combine_by == 'rows':
-            combine_matrix_table_rows(mt_paths, output_path, n_partitions=n_partitions, overwrite=overwrite)
+            combine_matrix_table_rows(mt_paths,
+                                      output_path,
+                                      n_partitions=n_partitions,
+                                      force_sort_cols=force_sort_cols,
+                                      overwrite=overwrite)
         elif combine_by == 'cols':
             combine_matrix_table_cols(mt_paths, output_path,  n_partitions=n_partitions, overwrite=overwrite)
         else:
@@ -95,6 +101,11 @@ def run_mts_combiner(
     help="The axis to combine the MatrixTables on. Options are 'rows' and 'cols'.",
 )
 @click.option(
+    "--force-sort-cols",
+    is_flag=True,
+    help="Whether to sort the columns of the MatrixTables before combining.",
+)
+@click.option(
     "-np",
     "--n-partitions",
     type=int,
@@ -127,6 +138,7 @@ def mts_combiner(
     overwrite: bool,
     combine_by: str,
     n_partitions: int,
+    force_sort_cols: bool,
     n_cpus: int,
     driver_memory: str,
     reference_genome: str
@@ -137,6 +149,7 @@ def mts_combiner(
         overwrite=overwrite,
         combine_by=combine_by,
         n_partitions=n_partitions,
+        force_sort_cols=force_sort_cols,
         n_cpus=n_cpus,
         driver_memory=driver_memory,
         reference_genome=reference_genome
