@@ -17,3 +17,13 @@ conda env create -f environment.yml
 conda activate pygskit
 pip install . -r requirements.txt
 ```
+
+### Updating the package
+```bash
+cd pygskit
+git pull origin main # update the source code from <main> branch
+conda env update -f environment.yml # required only if the environment.yml file has been updated
+conda activate pygskit
+pip install . -r requirements.txt --upgrade
+```
+
