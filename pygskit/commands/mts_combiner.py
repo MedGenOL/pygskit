@@ -115,7 +115,7 @@ def run_mts_combiner(
     help="Number of CPUs to use for local computation.",
 )
 @click.option(
-    "-rg"
+    "-rg",
     "--reference-genome",
     default=HG38_GENOME_REFERENCE,
     show_default=True,
