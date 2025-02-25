@@ -69,7 +69,7 @@ def run_mts_combiner(
 
 
 @click.command("mts_combiner", help="Combine MatrixTable directories into a single MatrixTable.")
-@click.option("-i"
+@click.option("-i",
     "--mts-dir",
     required=True,
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
