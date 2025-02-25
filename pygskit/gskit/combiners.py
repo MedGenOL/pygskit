@@ -3,6 +3,7 @@ import logging
 from typing import List
 
 import hail as hl
+from pygskit.gskit.utils import sort_mts_cols
 from pygskit.gskit.file_utils import validate_vcfs_paths, validate_vds_paths
 
 
@@ -128,7 +129,12 @@ def combine_vdses(
 
 
 def combine_matrix_table_rows(
-    mt_paths: List[str], output_path: str, n_partitions: int, overwrite: bool = False, kwargs=None
+    mt_paths: List[str],
+    output_path: str,
+    n_partitions: int,
+    force_sort_cols: bool = False,
+    overwrite: bool = False,
+    kwargs=None,
 ) -> None:
     """
     Combine multiple MatrixTables by rows into a single MatrixTable.
@@ -141,6 +147,7 @@ def combine_matrix_table_rows(
         mt_paths (List[str]): List of MatrixTable paths to combine.
         output_path (str): Path where the combined MatrixTable will be written.
         n_partitions: Number of partitions to use when writing the combined MatrixTable.
+        force_sort_cols (bool): Whether to sort the columns of the MatrixTables before combining.
         overwrite (bool): Whether to overwrite the output if it already exists.
         kwargs: Additional keyword arguments to pass to the Hail's union_rows function.
 
@@ -153,11 +160,19 @@ def combine_matrix_table_rows(
     try:
         # Combine the MatrixTables using Hail's union_rows function.
         mts = [hl.read_matrix_table(path) for path in mt_paths]
+
+        if force_sort_cols:
+            logging.info("Sorting columns of MatrixTables before combining.")
+            mts = sort_mts_cols(mts)
+
+        logging.info("Combining MatrixTables rows...")
         combined_mt = hl.MatrixTable.union_rows(*mts, **kwargs)
-        logging.info("Successfully combined MatrixTables.")
 
         # Repartition the combined MatrixTable and write it to the output path.
         if n_partitions:
+            logging.info(
+                f"Repartitioning the combined MatrixTable into {n_partitions} partitions."
+            )
             combined_mt = combined_mt.repartition(n_partitions)
 
         # Write the combined MatrixTable to the output path.
@@ -172,7 +187,11 @@ def combine_matrix_table_rows(
 
 
 def combine_matrix_table_cols(
-    mt_paths: List[str], output_path: str, n_partitions: int, overwrite: bool = False, kwargs=None
+    mt_paths: List[str],
+    output_path: str,
+    n_partitions: int,
+    overwrite: bool = False,
+    kwargs=None,
 ) -> None:
     """
     Combine multiple MatrixTables by columns into a single MatrixTable.
@@ -197,11 +216,15 @@ def combine_matrix_table_cols(
     try:
         # Combine the MatrixTables using Hail's union_cols function.
         mts = [hl.read_matrix_table(path) for path in mt_paths]
+
+        logging.info("Combining MatrixTables columns...")
         combined_mt = hl.MatrixTable.union_cols(*mts, **kwargs)
-        logging.info("Successfully combined MatrixTables.")
 
         # Repartition the combined MatrixTable and write it to the output path.
         if n_partitions:
+            logging.info(
+                f"Repartitioning the combined MatrixTable into {n_partitions} partitions."
+            )
             combined_mt = combined_mt.repartition(n_partitions)
 
         # Write the combined MatrixTable to the output path.

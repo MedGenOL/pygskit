@@ -1,5 +1,6 @@
 import hail as hl
 import logging
+from typing import List
 from pygskit.gskit.constants import HG38_GENOME_REFERENCE
 
 
@@ -38,3 +39,45 @@ def init_hail_local(
     )
 
     logging.info("Hail initialized successfully.")
+
+
+
+def sort_mts_cols(mts: List[hl.MatrixTable], ref_index: int = 0) -> List[hl.MatrixTable]:
+    """
+    Sort the column order of a list of matrix tables to match a reference matrix table.
+
+    The column order of each matrix table is updated to match the order defined by the reference matrix table.
+    All matrix tables are assumed to have equal number of columns and the same column keys.
+
+    Parameters:
+        mts (List[hl.MatrixTable]: List of matrix table objects.
+        ref_index (int): The index of the reference matrix table in the list. The reference table's columns
+                         remain unchanged. Defaults to 0.
+
+    Returns:
+        List[hl.MatrixTable]: A new list of matrix table objects with columns reordered to match the reference.
+
+    Raises:
+        IndexError: If ref_index is out of range for the list of matrix tables.
+
+    Example:
+        sorted_mts = sort_mts_cols([mt1, mt2, mt3], ref_index=0)
+    """
+    if not 0 <= ref_index < len(mts):
+        raise IndexError("ref_index is out of range for the provided list of matrix tables.")
+
+    # Compute the column order based on the reference matrix table.
+    ref_mt = mts[ref_index].add_col_index()
+
+    sorted_mts = []
+    for i, mt in enumerate(mts):
+        if i == ref_index:
+            # Leave the reference matrix table unchanged.
+            sorted_mts.append(mt)
+        else:
+            mt_indexed = mt.add_col_index()
+            new_order = mt_indexed.index_cols(ref_mt.col_key).col_idx.collect()
+            sorted_mts.append(mt_indexed.choose_cols(new_order))
+
+    return sorted_mts
+

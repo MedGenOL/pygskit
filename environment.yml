@@ -4,10 +4,10 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - python>=3.10,<3.11
+  - python==3.10
   - pip
   - pip:
-      - click
-      - setuptools
+      - click~=8.1.7
+      - setuptools~=68.2.0
       - gnomad==0.8.2
       - hail==0.2.120

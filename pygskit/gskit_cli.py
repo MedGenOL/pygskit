@@ -4,6 +4,7 @@ import click
 from pygskit.commands.gvcf_combiner import gvcf_combiner
 from pygskit.commands.vds2mt import vds2mt
 from pygskit.commands.vds_combiner import vds_combiner
+from pygskit.commands.mts_combiner import mts_combiner
 
 import pygskit.__init__ as __init__
 
@@ -62,6 +63,8 @@ def cli(log_level: str, log_file: Path):
 cli.add_command(gvcf_combiner)
 cli.add_command(vds2mt)
 cli.add_command(vds_combiner)
+cli.add_command(mts_combiner)
+
 
 
 def main():

@@ -7,6 +7,7 @@ import hail as hl
 
 from pygskit.gskit.combiners import combine_vdses
 from pygskit.gskit.utils import init_hail_local
+from pygskit.gskit.constants import HG38_GENOME_REFERENCE
 
 # Configure logging.
 logging.basicConfig(
@@ -21,6 +22,7 @@ def run_vds_combiner(
         output_path: str,
         driver_memory: str,
         n_cpus: int,
+        reference_genome: str,
         validate: bool,
         overwrite: bool,
 ) -> NoReturn:
@@ -32,6 +34,7 @@ def run_vds_combiner(
         output_path (str): Path where the combined VDS will be written.
         driver_memory (str): Memory allocation for the Spark driver.
         n_cpus (int): Number of CPUs to allocate for local computation.
+        reference_genome (str): Reference genome to init Hail with.
         validate (bool): Whether to validate the combined VDS.
         overwrite (bool): Whether to overwrite the output if it already exists.
 
@@ -40,7 +43,7 @@ def run_vds_combiner(
     """
     try:
         # Initialize Hail with the given configuration.
-        init_hail_local(n_cores=n_cpus, driver_memory=driver_memory)
+        init_hail_local(n_cores=n_cpus, driver_memory=driver_memory, reference_genome=reference_genome)
         logger.info("Starting VDS combination from '%s' into VDS '%s'", vdses_dir, output_path)
 
         # Combine the VDS directories.
@@ -83,6 +86,11 @@ def run_vds_combiner(
     show_default=True,
     help="Number of CPUs to use for local computation."
 )
+@click.option("-rg",
+              "--reference-genome",
+              default=HG38_GENOME_REFERENCE,
+              show_default=True,
+              help="Reference genome to init Hail with.")
 @click.option(
     "--validate",
     is_flag=True,
@@ -103,6 +111,7 @@ def vds_combiner(
         n_cpus: int,
         validate: bool,
         overwrite: bool,
+        reference_genome: str
 ) -> None:
     """
     Combine VDS directories into a single VDS.
@@ -115,8 +124,6 @@ def vds_combiner(
         n_cpus=n_cpus,
         validate=validate,
         overwrite=overwrite,
+        reference_genome=reference_genome
     )
 
-
-if __name__ == "__main__":
-    vds_combiner()

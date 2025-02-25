@@ -1,3 +1,5 @@
+import hail as hl
+
 import shutil
 from pygskit.gskit.utils import init_hail_local
 from pygskit.gskit.converters import convert_vds_to_mt, convert_mt_to_multi_sample_vcf
@@ -19,7 +21,7 @@ def test_convert_vds_to_mt():
     :return: None
     """
     # Initialize Hail in local mode
-    init_hail_local(n_cores=4, driver_memory="8g", reference_genome=HG38_GENOME_REFERENCE)
+    init_hail_local()
 
     # Decompress the VDS zip file
     decompress_files(
@@ -54,6 +56,8 @@ def test_convert_vds_to_mt():
     if vds_path.exists():
         shutil.rmtree(vds_path)
 
+    hl.stop()
+
 
 def test_convert_mt_to_multi_sample_vcf():
     """
@@ -65,7 +69,7 @@ def test_convert_mt_to_multi_sample_vcf():
     :return: None
     """
     # Initialize Hail in local mode
-    init_hail_local(n_cores=4, driver_memory="8g", reference_genome=HG38_GENOME_REFERENCE)
+    init_hail_local()
 
     # Decompress the MatrixTable zip file
     decompress_files(
@@ -87,3 +91,5 @@ def test_convert_mt_to_multi_sample_vcf():
     # Cleanup temporary files or directories
     if mt_path.exists():
         shutil.rmtree(mt_path)
+
+    hl.stop()
