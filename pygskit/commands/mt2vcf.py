@@ -21,7 +21,7 @@ def run_mt2vcf(
 
     This function initializes Hail, reads a MatrixTable file, optionally filters genotypes based on the 'adj' field,
     filters variants based on the alternate allele count, splits multi-allelic variants, and writes the result
-    to a VCF file.
+    to a VCF file. AC and AF fields are computed for each variant using the hl.variant_qc function.
 
     Parameters:
         mt_path (str): Path to the input MatrixTable file.
@@ -61,30 +61,37 @@ def run_mt2vcf(
 
 @click.command("mt2vcf", help="Convert a dense MatrixTable to a multi-sample VCF file.")
 @click.option(
-    "-mt" "--mt-path",
+    "-mt",
+    "--mt-path",
     required=True,
-    type=str,
-    help="Path to the input MatrixTable file.",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True),
+    help="Path to the input MatrixTable directory.",
 )
 @click.option(
-    "-vcf" "--vcf-path",
+    "-vcf",
+    "--vcf-path",
     required=True,
     type=str,
     help="Path to save the output VCF file. Ensure the path ends with '.vcf.bgz'.",
 )
 @click.option(
-    "-adj" "--filter-adj-genotypes",
+    "-adj",
+    "--filter-adj-genotypes",
     is_flag=True,
     help="Filter genotypes based on the 'adj' field.",
 )
 @click.option(
-    "-ac" "--min-ac",
+    "-ac",
+    "--min-ac",
     type=int,
     default=1,
     help="Minimum alternate allele count for filtering variants. Disables filtering if set to 0.",
 )
 @click.option(
-    "-sm", "--split-multi", is_flag=True, help="Split multi-allelic variants."
+    "-sm",
+    "--split-multi",
+    is_flag=True,
+    help="Split multi-allelic variants."
 )
 @click.option(
     "-dm",
@@ -130,5 +137,5 @@ def mt2vcf(
         split_multi=split_multi,
         local_cores=n_cpus,
         driver_memory=driver_memory,
-        reference_genome=reference_genome,
+        reference_genome=reference_genome
     )
