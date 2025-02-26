@@ -5,6 +5,7 @@ from pygskit.commands.gvcf_combiner import gvcf_combiner
 from pygskit.commands.vds2mt import vds2mt
 from pygskit.commands.vds_combiner import vds_combiner
 from pygskit.commands.mts_combiner import mts_combiner
+from pygskit.commands.mt2vcf import mt2vcf
 
 import pygskit.__init__ as __init__
 
@@ -64,6 +65,7 @@ cli.add_command(gvcf_combiner)
 cli.add_command(vds2mt)
 cli.add_command(vds_combiner)
 cli.add_command(mts_combiner)
+cli.add_command(mt2vcf)
 
 
 
