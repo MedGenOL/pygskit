@@ -1,15 +1,17 @@
 import hail as hl
 
+import pytest
+
 import shutil
 from pygskit.gskit.utils import init_hail_local
 from pygskit.gskit.converters import convert_vds_to_mt, convert_mt_to_multi_sample_vcf
 from pygskit.gskit.file_utils import compress_files, decompress_files
-from pygskit.gskit.constants import HG38_GENOME_REFERENCE
 from pathlib import Path
 
 TESTS_DIR = Path(__file__).parent
 
 
+@pytest.mark.order3
 def test_convert_vds_to_mt():
     """
     Test the convert_vds_to_mt function by converting a VDS to a MatrixTable.
@@ -37,6 +39,7 @@ def test_convert_vds_to_mt():
         vds_path=str(vds_path),
         output_path=str(mt_output_path),
         adjust_genotypes=True,
+        convert_lgt_to_gt=True,
         skip_split_multi=False,
         skip_keying_by_cols=False,
         overwrite=True,
@@ -53,15 +56,18 @@ def test_convert_vds_to_mt():
     )
 
     # Cleanup temporary files or directories
+    # Both VDS and MatrixTable(s) contain numerous files, so we remove the entire directory after compressing
     if vds_path.exists():
         shutil.rmtree(vds_path)
+    if mt_output_path.exists():
+        shutil.rmtree(mt_output_path)
 
     hl.stop()
 
-
-def test_convert_mt_to_multi_sample_vcf():
+@pytest.mark.order4
+def test_convert_mt_to_cvcf():
     """
-    Test the convert_mt_to_multi_sample_vcf function by converting a MatrixTable to a multi-sample VCF.
+    Test the convert_mt_to_multi_sample_vcf function by converting a MatrixTable to a multi-sample (cohort) VCF.
 
     This test initializes Hail in local mode, converts a MatrixTable to a multi-sample VCF,
     and verifies the successful creation of the VCF by checking for the existence of specific success files.
@@ -80,9 +86,13 @@ def test_convert_mt_to_multi_sample_vcf():
 
     # Convert a MatrixTable to a multi-sample VCF
     mt_path = TESTS_DIR / "testdata/mts/cohort.mt"
-    vcf_output_path = TESTS_DIR / "testdata/vcf/cohort.vcf.gz"
+    vcf_output_path = TESTS_DIR / "testdata/vcf/cohort.vcf.bgz"
     convert_mt_to_multi_sample_vcf(
-        mt_path=str(mt_path), vcf_path=str(vcf_output_path), filter_adj_genotypes=True, min_ac=1
+        mt_path=str(mt_path),
+        vcf_path=str(vcf_output_path),
+        filter_adj_genotypes=True,
+        min_ac=1,
+        split_multi=True
     )
 
     # Check if the vcf_output_path file exists
