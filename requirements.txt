@@ -1,4 +1,5 @@
 hail==0.2.120
 click
+setuptools
 gnomad
 pytest

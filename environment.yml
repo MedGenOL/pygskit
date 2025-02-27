@@ -8,5 +8,4 @@ dependencies:
   - pip
   - pip:
       - click
-      - gnomad
       - hail==0.2.120
