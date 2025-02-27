@@ -1,14 +1,15 @@
+import shutil
+from pathlib import Path
+import pytest
+
 import hail as hl
 
-import shutil
+from pygskit.gskit.file_utils import decompress_files
 from pygskit.gskit.utils import init_hail_local, sort_mts_cols
-from pygskit.gskit.converters import convert_vds_to_mt, convert_mt_to_multi_sample_vcf
-from pygskit.gskit.file_utils import compress_files, decompress_files
-from pygskit.gskit.constants import HG38_GENOME_REFERENCE
-from pathlib import Path
 
 TESTS_DIR = Path(__file__).parent
 
+@pytest.mark.order7
 def test_sort_mts():
     """
     Test the sort_mts_cols function by sorting the column order of a list of matrix tables.

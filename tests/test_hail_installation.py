@@ -6,9 +6,10 @@ Run this script with:
 """
 
 import logging
+import pytest
 from pygskit.gskit.utils import init_hail_local
 
-
+@pytest.mark.order1
 def test_hail_installed():
 
     import hail as hl
