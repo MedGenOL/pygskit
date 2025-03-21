@@ -15,7 +15,7 @@ module load hpc-env/13.1
 module load BCFtools/1.18-GCC-13.1.0
 
 # Define base directory
-BASE_DIR="${GROUPWORK}/KOL_UOL/projects/1000_CHD_WGS/joint_genotyping"
+BASE_DIR="${GROUPDSS}/KOL_UOL/projects/1000_CHD_WGS/joint_genotyping"
 
 FILTERED_DIR="${BASE_DIR}/processed/filtered_vcfs"
 MERGED_DIR="${BASE_DIR}/processed/merged_vcf"

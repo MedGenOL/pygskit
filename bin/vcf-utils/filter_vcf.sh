@@ -23,15 +23,13 @@ CHROMOSOMES=( {1..22} X Y )
 CHR=${CHROMOSOMES[$((SLURM_ARRAY_TASK_ID-1))]}
 
 # Define base directory
-BASE_DIR="${GROUPWORK}/KOL_UOL/projects/1000_CHD_WGS/joint_genotyping"
+BASE_DIR="${GROUPDSS}/KOL_UOL/projects/1000_CHD_WGS/joint_genotyping"
 
 # Input and output directories
 INPUT_DIR="${BASE_DIR}/raw/1k_joint_vcfs"
 FILTERED_DIR="${BASE_DIR}/processed/filtered_vcfs"
-MERGED_DIR="${BASE_DIR}/processed/merged_vcf"
 
 mkdir -p "${FILTERED_DIR}"
-mkdir -p "${MERGED_DIR}"
 
 # Filter variants with INFO/AC >= 10 for each chromosome
 INPUT_VCF="${INPUT_DIR}/1k_cohort.chr${CHR}.vcf.bgz"
