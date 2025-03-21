@@ -7,7 +7,5 @@ dependencies:
   - python==3.10
   - pip
   - pip:
-      - click~=8.1.7
-      - setuptools~=68.2.0
-      - gnomad==0.8.2
+      - click
       - hail==0.2.120
