@@ -5,8 +5,13 @@ pygskit: A general-purpose Python package for the analysis of genetic data.
 --
 
 ### Overview
-`pygskit` is a Python package designed for the analysis of genetic data. This package is 
-currently under development and is not ready for use.
+`pygskit` is a Python package designed for the analysis of genetic data using mostly Hail. 
+*This package is currently under development.*
+
+### Key features
+- Scalable join calling
+- QC and filtering
+- Computation of cohort-specific metrics (e.g., allele frequency)
 
 ### Installing the Required Dependencies via Conda
 
@@ -27,3 +32,6 @@ conda activate pygskit
 pip install . -r requirements.txt --upgrade
 ```
 
+### Maintainers
+- Enrique Audain
+- Rafiga Masmaliyeva
